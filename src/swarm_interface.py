@@ -17,7 +17,7 @@ class Params:
         self.max_vel = max_vel
         self.max_accel = max_accel
         self.max_turn_rate = max_turn_rate
-        self.edges = edges
+        self.edges = edges # top bottom left right
         self.neighbor_radius = neighbor_radius
         self.controller = controller
 
@@ -92,17 +92,17 @@ class SwarmInterface(object):
 
                 outside = True
 
-                if self.params.edges<agentPos[0]:
-                    rospy.loginfo("Out of Bounds X Positive")
+                if self.params.edges[3]<agentPos[0]:
+                    rospy.loginfo("Out of Bounds X Positive(Right)")
                     if next_vel[0]>0:next_vel[0]*=-1 
-                elif -self.params.edges>agentPos[0]:
-                    rospy.loginfo("Out of Bounds X Negative")
+                elif self.params.edges[2]>agentPos[0]:
+                    rospy.loginfo("Out of Bounds X Negative(Left)")
                     if next_vel[0]<0:next_vel[0]*=-1 
-                elif self.params.edges<agentPos[1]:
-                    rospy.loginfo("Out of Bounds Y Positive")
+                elif self.params.edges[0]<agentPos[1]:
+                    rospy.loginfo("Out of Bounds Y Positive(Top)")
                     if next_vel[1]>0:next_vel[1]*=-1 
-                elif -self.params.edges>agentPos[1]:
-                    rospy.loginfo("Out of Bounds Y Negative")
+                elif self.params.edges[1]>agentPos[1]:
+                    rospy.loginfo("Out of Bounds Y Negative(Bottom")
                     if next_vel[1]<0:next_vel[1]*=-1 
                 else:
                     rospy.loginfo("In Bounds")
@@ -146,6 +146,6 @@ class SwarmInterface(object):
             rate.sleep()
 
 if __name__ == "__main__":
-    params = Params(controller=bo(1,1,0.2),active_robots=[1,4,6],neighbor_radius=0.3,edges=0.2,max_vel=0.07)
+    params = Params(controller=bo(3,2,0.1),active_robots=[1,2,4,5,6],neighbor_radius=0.4,edges=[0.2,-0.2,-0.8,0.3],max_vel=0.15)
     node = SwarmInterface(params=params)
     node.run()
