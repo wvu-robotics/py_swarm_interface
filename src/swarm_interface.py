@@ -29,6 +29,7 @@ class SwarmInterface(object):
         self.listener = tf.TransformListener()
         self.agent_vel_pubs = []
         self.agent_positions = np.zeros((len(params.active_robots),2))#might need better init for vels
+        self.agent_rot = np.zeros(len(params.active_robots))
         self.agent_vels = np.zeros((len(params.active_robots),2))#might need better init
 
         self.controllers = [copy.deepcopy(params.controller) for i in range(len(params.active_robots))] #eventually parameterize input
@@ -70,6 +71,7 @@ class SwarmInterface(object):
                     dt = 1/rateHz
                     # self.agent_vels[i] = (currentPos - self.agent_positions[i])/dt #figure out a dt calculation with the rate--this might become problematic
                     self.agent_positions[i] = currentPos
+                    self.agent_rot[i] = rot[2]
 
             except:
                 continue
@@ -119,6 +121,8 @@ class SwarmInterface(object):
                 vel_msg = Twist()
                 vel_msg.linear.x = next_vel[0]
                 vel_msg.linear.y = next_vel[1]
+                p_rot = 5
+                vel_msg.angular.z = self.agent_rot[i]*-p_rot
                 self.agent_vel_pubs[i].publish(vel_msg)
                 self.agent_vels[i] = next_vel
             # if self.params.edges<trans[0]:
@@ -146,6 +150,6 @@ class SwarmInterface(object):
             rate.sleep()
 
 if __name__ == "__main__":
-    params = Params(controller=bo(3,2,0.1),active_robots=[1,2,4,5,6],neighbor_radius=0.4,edges=[0.2,-0.2,-0.8,0.3],max_vel=0.15)
+    params = Params(controller=bo(3,2,0.1),active_robots=[1,2,3,5,6],neighbor_radius=0.4,edges=[0.2,-0.2,-0.4,0.4],max_vel=0.15)
     node = SwarmInterface(params=params)
     node.run()
